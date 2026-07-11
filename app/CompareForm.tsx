@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import CompanyAutocomplete from "@/app/CompanyAutocomplete";
 import type { CorpCode } from "@/lib/corpCodes";
 
@@ -32,17 +32,21 @@ const CURRENT_YEAR = new Date().getFullYear();
 const SELECTABLE_END_YEARS = Array.from({ length: 6 }, (_, i) => CURRENT_YEAR - 1 - i);
 
 // 회사별로 시각적으로 구분되는 accent 컬러 (최대 3개 회사)
+// header: 회사명 헤더 셀, panel: 그 회사 칼럼 전체(연도행+데이터행)에 옅게 깔리는 배경, dot: 색상 점
 const COMPANY_THEMES = [
   {
     header: "bg-indigo-50 text-indigo-900 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-100 dark:border-indigo-800",
+    panel: "bg-indigo-50/50 border-indigo-100 dark:bg-indigo-500/5 dark:border-indigo-900/50",
     dot: "bg-indigo-500",
   },
   {
     header: "bg-teal-50 text-teal-900 border-teal-200 dark:bg-teal-500/20 dark:text-teal-100 dark:border-teal-800",
+    panel: "bg-teal-50/50 border-teal-100 dark:bg-teal-500/5 dark:border-teal-900/50",
     dot: "bg-teal-500",
   },
   {
     header: "bg-rose-50 text-rose-900 border-rose-200 dark:bg-rose-500/20 dark:text-rose-100 dark:border-rose-800",
+    panel: "bg-rose-50/50 border-rose-100 dark:bg-rose-500/5 dark:border-rose-900/50",
     dot: "bg-rose-500",
   },
 ];
@@ -235,30 +239,35 @@ export default function CompareForm() {
                     계정명
                   </th>
                   {result.companies.map((c, i) => (
-                    <th
-                      key={c.corp_code}
-                      colSpan={3}
-                      className={`border-b border-l px-4 py-3 text-center font-semibold ${COMPANY_THEMES[i].header}`}
-                    >
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className={`h-2 w-2 rounded-full ${COMPANY_THEMES[i].dot}`} />
-                        {c.corp_name}
-                      </span>
-                    </th>
+                    <Fragment key={c.corp_code}>
+                      {i > 0 && <th className="w-5 min-w-5" />}
+                      <th
+                        colSpan={3}
+                        className={`rounded-t-lg border px-4 py-3 text-center font-semibold ${COMPANY_THEMES[i].header}`}
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className={`h-2 w-2 rounded-full ${COMPANY_THEMES[i].dot}`} />
+                          {c.corp_name}
+                        </span>
+                      </th>
+                    </Fragment>
                   ))}
                 </tr>
                 <tr>
                   <th className="sticky left-0 z-10 border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900" />
-                  {result.companies.map((c) =>
-                    c.key_accounts[0]?.values.map((v) => (
-                      <th
-                        key={`${c.corp_code}-${v.year}`}
-                        className="border-b border-l border-slate-200 px-4 py-2 text-center text-xs font-normal text-slate-500 dark:border-slate-800 dark:text-slate-400"
-                      >
-                        {v.year}
-                      </th>
-                    ))
-                  )}
+                  {result.companies.map((c, i) => (
+                    <Fragment key={c.corp_code}>
+                      {i > 0 && <th className="w-5 min-w-5" />}
+                      {c.key_accounts[0]?.values.map((v) => (
+                        <th
+                          key={v.year}
+                          className={`border-x border-b px-4 py-2 text-center text-xs font-normal text-slate-500 dark:text-slate-400 ${COMPANY_THEMES[i].panel}`}
+                        >
+                          {v.year}
+                        </th>
+                      ))}
+                    </Fragment>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -267,16 +276,19 @@ export default function CompareForm() {
                     <td className="sticky left-0 z-10 border-b border-slate-200 bg-inherit px-4 py-3 font-medium text-slate-800 dark:border-slate-800 dark:text-slate-100">
                       {result.companies[0].key_accounts[rowIndex].label}
                     </td>
-                    {result.companies.map((c) =>
-                      c.key_accounts[rowIndex].values.map((v) => (
-                        <td
-                          key={`${c.corp_code}-${v.year}`}
-                          className="border-b border-l border-slate-200 px-4 py-3 text-right tabular-nums text-slate-700 dark:border-slate-800 dark:text-slate-200"
-                        >
-                          {formatAmount(v.amount)}
-                        </td>
-                      ))
-                    )}
+                    {result.companies.map((c, i) => (
+                      <Fragment key={c.corp_code}>
+                        {i > 0 && <td className="w-5 min-w-5" />}
+                        {c.key_accounts[rowIndex].values.map((v) => (
+                          <td
+                            key={v.year}
+                            className={`border-x border-b px-4 py-3 text-right tabular-nums text-slate-700 dark:text-slate-200 ${COMPANY_THEMES[i].panel}`}
+                          >
+                            {formatAmount(v.amount)}
+                          </td>
+                        ))}
+                      </Fragment>
+                    ))}
                   </tr>
                 ))}
               </tbody>
