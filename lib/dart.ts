@@ -71,9 +71,37 @@ async function fetchFinancials(corpCode: string, bsnsYear: number): Promise<Dart
   return (await res.json()) as DartFnlttResponse;
 }
 
+export const MIN_SELECTABLE_YEAR_OFFSET = 1; // currentYear - 1 (가장 최신 사업보고서 연도)
+export const MAX_SELECTABLE_YEAR_OFFSET = 6; // currentYear - 6까지 선택 가능
+
+export function getSelectableEndYears(): number[] {
+  const currentYear = new Date().getFullYear();
+  const years: number[] = [];
+  for (let offset = MIN_SELECTABLE_YEAR_OFFSET; offset <= MAX_SELECTABLE_YEAR_OFFSET; offset++) {
+    years.push(currentYear - offset);
+  }
+  return years;
+}
+
+/**
+ * targetYear가 주어지면 그 연도(사업보고서 기준연도)만 조회한다 - 사용자가 직접 고른 연도이므로 폴백하지 않는다.
+ * 주어지지 않으면 최신 연도부터 최대 4개년을 내려가며 데이터가 있는 첫 연도를 채택한다(자동 모드).
+ */
 export async function getCompanyFinancials(
-  corpCode: string
+  corpCode: string,
+  targetYear?: number
 ): Promise<{ baseYear: number; rows: DartFnlttRow[] } | null> {
+  if (targetYear !== undefined) {
+    const data = await fetchFinancials(corpCode, targetYear);
+    if (data.status === "000" && data.list && data.list.length > 0) {
+      return { baseYear: targetYear, rows: data.list };
+    }
+    if (data.status !== "000" && data.status !== "013") {
+      throw new DartApiError(data.message || `DART API 오류 (status ${data.status})`);
+    }
+    return null;
+  }
+
   const currentYear = new Date().getFullYear();
   for (let year = currentYear - 1; year >= currentYear - 4; year--) {
     const data = await fetchFinancials(corpCode, year);

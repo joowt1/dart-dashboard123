@@ -5,7 +5,14 @@ import { DartApiError, extractKeyAccounts, getCompanyFinancials, selectFsRows } 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type CompareRequestBody = { corp_codes?: unknown };
+type CompareRequestBody = { corp_codes?: unknown; end_year?: unknown };
+
+function parseEndYear(value: unknown): number | undefined {
+  if (value === null || value === undefined || value === "auto") return undefined;
+  const num = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(num)) return undefined;
+  return num;
+}
 
 export async function POST(request: NextRequest) {
   let body: CompareRequestBody;
@@ -19,6 +26,7 @@ export async function POST(request: NextRequest) {
   if (!Array.isArray(corpCodes) || corpCodes.length !== 3 || corpCodes.some((c) => typeof c !== "string" || !c)) {
     return NextResponse.json({ error: "3개 회사를 모두 선택해주세요." }, { status: 400 });
   }
+  const endYear = parseEndYear(body.end_year);
 
   const companies: {
     corp_code: string;
@@ -33,7 +41,7 @@ export async function POST(request: NextRequest) {
       (corpCodes as string[]).map(async (corpCode) => {
         const corp = findCorpByCode(corpCode);
         const corpName = corp?.corp_name ?? corpCode;
-        const financials = await getCompanyFinancials(corpCode);
+        const financials = await getCompanyFinancials(corpCode, endYear);
         return { corpCode, corpName, financials };
       })
     );
@@ -43,7 +51,9 @@ export async function POST(request: NextRequest) {
         errors.push({
           corp_code: corpCode,
           corp_name: corpName,
-          message: "이 회사는 DART 사업보고서 재무정보가 없습니다.",
+          message: endYear
+            ? `${endYear}년 기준 DART 사업보고서 재무정보가 없습니다.`
+            : "이 회사는 DART 사업보고서 재무정보가 없습니다.",
         });
         continue;
       }

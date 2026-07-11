@@ -55,19 +55,19 @@ export default function CompanyAutocomplete({ label, selected, onSelect }: Props
 
   return (
     <div className="relative">
-      <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
+      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
       {selected ? (
-        <div className="flex items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+        <div className="flex items-center justify-between rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
           <span>
             {selected.corp_name}{" "}
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
               ({selected.stock_code || "비상장"})
             </span>
           </span>
           <button
             type="button"
             onClick={handleClear}
-            className="text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+            className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
           >
             변경
           </button>
@@ -87,14 +87,14 @@ export default function CompanyAutocomplete({ label, selected, onSelect }: Props
           onFocus={() => results.length > 0 && setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
           placeholder="회사명 입력"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
       )}
 
       {isOpen && !selected && (
-        <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700">
+        <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
           {results.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">검색 결과가 없습니다.</div>
+            <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">검색 결과가 없습니다.</div>
           ) : (
             <>
               {results.map((corp) => (
@@ -103,14 +103,14 @@ export default function CompanyAutocomplete({ label, selected, onSelect }: Props
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handlePick(corp)}
-                  className="flex w-full items-center justify-between px-3 py-2 text-left text-gray-900 hover:bg-blue-50 dark:text-gray-100 dark:hover:bg-gray-600"
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-slate-900 hover:bg-indigo-50 dark:text-slate-100 dark:hover:bg-slate-700"
                 >
                   <span>{corp.corp_name}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{corp.stock_code || "비상장"}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{corp.stock_code || "비상장"}</span>
                 </button>
               ))}
               {truncated && (
-                <div className="px-3 py-2 text-xs text-gray-400">더 정확히 입력하면 더 나은 결과가 나옵니다.</div>
+                <div className="px-3 py-2 text-xs text-slate-400">더 정확히 입력하면 더 나은 결과가 나옵니다.</div>
               )}
             </>
           )}

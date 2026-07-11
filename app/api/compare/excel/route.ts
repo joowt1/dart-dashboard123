@@ -6,10 +6,17 @@ import { buildComparisonWorkbook, workbookToBuffer, type CompanyFinancials } fro
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type CompareRequestBody = { corp_codes?: unknown };
+type CompareRequestBody = { corp_codes?: unknown; end_year?: unknown };
 
 function sanitizeForFilename(name: string): string {
   return name.replace(/[\\/*?:[\]]/g, "");
+}
+
+function parseEndYear(value: unknown): number | undefined {
+  if (value === null || value === undefined || value === "auto") return undefined;
+  const num = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(num)) return undefined;
+  return num;
 }
 
 export async function POST(request: NextRequest) {
@@ -24,6 +31,7 @@ export async function POST(request: NextRequest) {
   if (!Array.isArray(corpCodes) || corpCodes.length !== 3 || corpCodes.some((c) => typeof c !== "string" || !c)) {
     return NextResponse.json({ error: "3개 회사를 모두 선택해주세요." }, { status: 400 });
   }
+  const endYear = parseEndYear(body.end_year);
 
   const companies: CompanyFinancials[] = [];
 
@@ -32,7 +40,7 @@ export async function POST(request: NextRequest) {
       (corpCodes as string[]).map(async (corpCode) => {
         const corp = findCorpByCode(corpCode);
         const corpName = corp?.corp_name ?? corpCode;
-        const financials = await getCompanyFinancials(corpCode);
+        const financials = await getCompanyFinancials(corpCode, endYear);
         return { corpCode, corpName, financials };
       })
     );
@@ -40,7 +48,11 @@ export async function POST(request: NextRequest) {
     for (const { corpCode, corpName, financials } of results) {
       if (!financials) {
         return NextResponse.json(
-          { error: `'${corpName}'(${corpCode})은(는) DART 사업보고서 재무정보가 없습니다.` },
+          {
+            error: endYear
+              ? `'${corpName}'(${corpCode})은(는) ${endYear}년 기준 DART 사업보고서 재무정보가 없습니다.`
+              : `'${corpName}'(${corpCode})은(는) DART 사업보고서 재무정보가 없습니다.`,
+          },
           { status: 422 }
         );
       }
