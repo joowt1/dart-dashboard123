@@ -57,10 +57,10 @@ export default function CompanyAutocomplete({ label, selected, onSelect }: Props
     <div className="relative">
       <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
       {selected ? (
-        <div className="flex items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-3 py-2 dark:border-gray-600 dark:bg-gray-800">
+        <div className="flex items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
           <span>
             {selected.corp_name}{" "}
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
               ({selected.stock_code || "비상장"})
             </span>
           </span>
@@ -87,14 +87,14 @@ export default function CompanyAutocomplete({ label, selected, onSelect }: Props
           onFocus={() => results.length > 0 && setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
           placeholder="회사명 입력"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400"
         />
       )}
 
       {isOpen && !selected && (
-        <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800">
+        <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700">
           {results.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-500">검색 결과가 없습니다.</div>
+            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">검색 결과가 없습니다.</div>
           ) : (
             <>
               {results.map((corp) => (
@@ -103,10 +103,10 @@ export default function CompanyAutocomplete({ label, selected, onSelect }: Props
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handlePick(corp)}
-                  className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-blue-50 dark:hover:bg-gray-700"
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-gray-900 hover:bg-blue-50 dark:text-gray-100 dark:hover:bg-gray-600"
                 >
                   <span>{corp.corp_name}</span>
-                  <span className="text-xs text-gray-500">{corp.stock_code || "비상장"}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{corp.stock_code || "비상장"}</span>
                 </button>
               ))}
               {truncated && (
