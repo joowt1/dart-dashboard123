@@ -1,4 +1,5 @@
-import corpCodesData from "@/data/corp-codes.json";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export type CorpCode = {
   corp_code: string;
@@ -6,7 +7,11 @@ export type CorpCode = {
   stock_code: string;
 };
 
-const corpCodes = corpCodesData as CorpCode[];
+// 8.9MB 규모의 JSON을 정적 import(빌드 타임 번들링/타입추론 대상)로 두면
+// 빌드 머신 사양이 작을 때 "Collecting page data" 단계가 죽는 문제가 있어
+// 런타임에 한 번만 읽어 모듈 스코프에 캐시하는 방식으로 로드한다.
+const corpCodesPath = join(process.cwd(), "data", "corp-codes.json");
+const corpCodes: CorpCode[] = JSON.parse(readFileSync(corpCodesPath, "utf-8"));
 
 const MAX_RESULTS = 20;
 
